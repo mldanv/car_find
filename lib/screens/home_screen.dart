@@ -1,98 +1,45 @@
-import 'package:car_find/screens/detail_screen.dart';
-import 'package:car_find/services/database_service.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import 'package:car_find/screens/add_post_screen.dart';
+import 'package:car_find/firebase_options.dart';
+import 'package:car_find/provider/theme_provider.dart';
+import 'package:car_find/screens/bottom_nav.dart';
+import 'package:car_find/screens/home_screen.dart';
 import 'package:car_find/screens/sign_in_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}
 
-  Future<void> signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => const SignInScreen(),
-    ));
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              signOut(context);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddPostScreen()),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, ThemeNotifier notifier, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Car Find',
+            theme: notifier.darkMode! ? darkMode : lightMode,
+            home: StreamBuilder(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return const BottomNav();
+                } else {
+                  return const SignInScreen();
+                }
+              },
+            ),
           );
-        },
-        child: const Icon(
-          Icons.add,
-        ),
-      ),
-      body: StreamBuilder(
-        stream: DatabaseService.getCarList(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            default:
-              return ListView(
-                padding: const EdgeInsets.only(bottom: 80),
-                children: snapshot.data!.map((document) {
-                  return Card(
-                    child: Column(
-                      children: [
-                        document.imageUrl != null &&
-                                Uri.parse(document.imageUrl!).isAbsolute
-                            ? ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  topRight: Radius.circular(16),
-                                ),
-                                child: Image.network(
-                                  document.imageUrl!,
-                                  width: double.infinity,
-                                  height: 150,
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.center,
-                                ),
-                              )
-                            : Container(),
-                        ListTile(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      DetailScreen(car: document)),
-                            );
-                          },
-                          title: Text(document.nama),
-                          subtitle: Text(document.model),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              );
-          }
         },
       ),
     );
