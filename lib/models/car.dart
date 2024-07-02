@@ -11,6 +11,7 @@ class Car {
   final String kota;
   final String noTelp;
   final String negara;
+  String? mapUrl;
   String? imageUrl;
   Timestamp? timestamp;
   List<String>? likes;
@@ -26,6 +27,7 @@ class Car {
       required this.kota,
       required this.noTelp,
       required this.negara,
+      this.mapUrl,
       this.likes,
       this.imageUrl,
       this.timestamp});

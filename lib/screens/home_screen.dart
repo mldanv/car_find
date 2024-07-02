@@ -2,6 +2,7 @@ import 'package:car_find/screens/detail_screen.dart';
 import 'package:car_find/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:car_find/screens/add_post_screen.dart';
 import 'package:car_find/screens/sign_in_screen.dart';
 
@@ -19,10 +20,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HOME'),
-        backgroundColor: Colors.black,
-        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 25.0),
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Home'),
         actions: [
           IconButton(
             onPressed: () {
@@ -31,6 +29,17 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.logout),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddPostScreen()),
+          );
+        },
+        child: const Icon(
+          Icons.add,
+        ),
       ),
       body: StreamBuilder(
         stream: DatabaseService.getCarList(),
@@ -45,7 +54,7 @@ class HomeScreen extends StatelessWidget {
               );
             default:
               return ListView(
-                padding: const EdgeInsets.only(bottom: 85),
+                padding: const EdgeInsets.only(bottom: 80),
                 children: snapshot.data!.map((document) {
                   return Card(
                     child: Column(

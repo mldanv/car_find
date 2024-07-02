@@ -1,3 +1,6 @@
+import 'package:car_find/models/profile.dart';
+import 'package:car_find/screens/bottom_nav.dart';
+import 'package:car_find/services/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -138,15 +141,15 @@ class SignUpScreenState extends State<SignUpScreen> {
                           email: email,
                           password: password,
                         );
+                        Profile profile =
+                            Profile(username: username, noTelp: "");
 
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(userCredential.user!.uid)
-                            .set({"username": username});
+                        await ProfileService.addProfile(
+                            userCredential, profile);
 
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
+                              builder: (context) => const BottomNav()),
                         );
                       } on FirebaseAuthException catch (e) {
                         if (e.code == 'weak-password') {

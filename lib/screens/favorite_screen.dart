@@ -1,3 +1,5 @@
+import 'package:car_find/screens/detail_screen.dart';
+import 'package:car_find/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -11,8 +13,62 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('FAVORITE'),
+      appBar: AppBar(
+        title: const Text('Favorite'),
+      ),
+      body: StreamBuilder(
+        stream: DatabaseService.getFavoriteCarList(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          }
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            default:
+              return ListView(
+                padding: const EdgeInsets.only(bottom: 80),
+                children: snapshot.data!.map((document) {
+                  return Card(
+                    child: Column(
+                      children: [
+                        document.imageUrl != null &&
+                                Uri.parse(document.imageUrl!).isAbsolute
+                            ? ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(16),
+                                  topRight: Radius.circular(16),
+                                ),
+                                child: Image.network(
+                                  document.imageUrl!,
+                                  width: double.infinity,
+                                  height: 150,
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.center,
+                                ),
+                              )
+                            : Container(),
+                        ListTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      DetailScreen(car: document)),
+                            );
+                          },
+                          title: Text(document.nama),
+                          subtitle: Text(document.model),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+          }
+        },
       ),
     );
   }

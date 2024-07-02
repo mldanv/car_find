@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'package:car_find/models/car.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +12,7 @@ class DatabaseService {
   static final CollectionReference _carCollection =
       _database.collection('cars');
   static final FirebaseStorage _storage = FirebaseStorage.instance;
+  static final currentUser = FirebaseAuth.instance.currentUser;
 
   static Future<String?> uploadImage(XFile file) async {
     try {
@@ -37,6 +39,33 @@ class DatabaseService {
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         return Car(
+            id: doc.id,
+            nama: data['nama'],
+            brand: data['brand'],
+            model: data['model'],
+            tahun: data['tahun'],
+            warna: data['warna'],
+            jalan: data['jalan'],
+            kota: data['kota'],
+            noTelp: data['noTelp'],
+            negara: data['negara'],
+            mapUrl: data['mapUrl'],
+            imageUrl: data['imageUrl'],
+            timestamp: data['timestamp'],
+            likes: List<String>.from(data['likes'] ?? []));
+      }).toList();
+    });
+  }
+
+  static Stream<List<Car>> getFavoriteCarList() {
+    return _carCollection
+        .where('likes', arrayContains: currentUser!.email)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Car(
+            id: doc.id,
             nama: data['nama'],
             brand: data['brand'],
             model: data['model'],

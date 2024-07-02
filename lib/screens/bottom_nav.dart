@@ -1,6 +1,6 @@
-import 'package:car_find/screens/add_post_screen.dart';
 import 'package:car_find/screens/favorite_screen.dart';
 import 'package:car_find/screens/home_screen.dart';
+import 'package:car_find/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 
 class BottomNav extends StatelessWidget {
@@ -16,7 +16,7 @@ class BottomNav extends StatelessWidget {
           children: [
             HomeScreen(),
             FavoriteScreen(),
-            AddPostScreen(),
+            ProfileScreen(),
           ],
         ),
         bottomNavigationBar: Container(

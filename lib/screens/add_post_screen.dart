@@ -2,7 +2,6 @@ import 'package:car_find/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:car_find/components/my_text_field.dart';
 
 class AddPostScreen extends StatefulWidget {
@@ -22,6 +21,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final TextEditingController _kotaController = TextEditingController();
   final TextEditingController _noTelpController = TextEditingController();
   final TextEditingController _negaraController = TextEditingController();
+  final TextEditingController _mapController = TextEditingController();
 
   // Image yang akan dipilih
   XFile? _imageFile;
@@ -37,6 +37,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     String kota = _kotaController.text.trim();
     String noTelp = _noTelpController.text.trim();
     String negara = _negaraController.text.trim();
+    String mapUrl = _mapController.text.trim();
 
     // Cek apakah text field terisi atau tidak
     if (nama.isEmpty ||
@@ -47,7 +48,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
         jalan.isEmpty ||
         kota.isEmpty ||
         noTelp.isEmpty ||
-        negara.isEmpty) {
+        negara.isEmpty ||
+        mapUrl.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Semua bagian harus diisi sebelum upload!')),
@@ -66,6 +68,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
           'noTelp': noTelp,
           'negara': negara,
           'imageUrl': imageUrl,
+          'mapUrl': mapUrl,
           'timestamp': FieldValue.serverTimestamp(),
           'likes': [],
         });
@@ -75,8 +78,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
             const SnackBar(content: Text('Berhasil upload!')),
           );
         }
-
-        Navigator.pop(context);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +104,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Post'),
-        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -176,6 +176,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
               MyTextField(
                   controller: _negaraController,
                   hintText: 'Negara',
+                  obscureText: false),
+              MyTextField(
+                  controller: _mapController,
+                  hintText: 'Link Google Map',
                   obscureText: false),
               //
               //
